@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   post "/user_playlists/create_all", to: "user_playlists#createAll"
   delete "/user_playlists/destroy/:user_id/:music_id",
          to: "user_playlists#destroy"
-  delete "/user_playlists/destroy_all/:user_id/:musics_id",
+  post "/user_playlists/destroy_all",
          to: "user_playlists#destroyAll"
 
   post "/groups/create", to: "groups#create"

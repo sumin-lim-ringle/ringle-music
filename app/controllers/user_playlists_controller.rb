@@ -55,13 +55,12 @@ class UserPlaylistsController < ApplicationController
     end
   end
 
+  # post 로 만들어 놓은 상태
   def destroyAll
     @user_id = params[:user_id]
-    @musics_id = params[:musics_id] # string, ex: 1,2,3,4
+    @musics_id = params[:musics_id] 
 
-    @music_id_arr = @musics_id.split(",")
-
-    @music_id_arr.each do |music_id|
+    @musics_id.each do |music_id|
       @music = UserPlaylist.find_by(user_id: @user_id, music_id: music_id)
 
       if @music
