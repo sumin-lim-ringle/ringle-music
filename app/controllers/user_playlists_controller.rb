@@ -1,5 +1,7 @@
 class UserPlaylistsController < ApplicationController
-  skip_before_action :verify_authenticity_token # 추후 로그인 작업 시 변경 예정
+  before_action :authenticate_user!, only: [:create]
+  protect_from_forgery prepend: true
+
   def index
     @user_id = params[:user_id]
 
@@ -19,46 +21,32 @@ class UserPlaylistsController < ApplicationController
   end
 
   def create
-    user_playlist = UserPlaylist.new
-    user_playlist.music_id = params[:music_id]
-    user_playlist.user_id = params[:user_id]
-    user_playlist.save
-  end
-
-  def createAll
     @user_id = params[:user_id]
     @musics_id = params[:musics_id]
 
     @musics_id.each do |music_id|
-      user_playlist = UserPlaylist.new
-      user_playlist.music_id = music_id
-      user_playlist.user_id = @user_id
-      user_playlist.save
-    end
-  end
+      @playlist_cnt = UserPlaylist.where("user_id = ?", params[:user_id]).count
 
-  def destroy
-    @music =
-      UserPlaylist.find_by(
-        user_id: params[:user_id],
-        music_id: params[:music_id]
-      )
+      if @playlist_cnt >= 100
+        # 가장 오래된 항목 삭제
+        UserPlaylist
+          .where("user_id = ?", params[:user_id])
+          .order("created_at DESC")
+          .limit(1)
+          .first
+          .delete
 
-    if @music
-      @music.destroy
-    else
-      render json: {
-               status: "FAILED",
-               message: "This song is not added in your playlist."
-             },
-             status: 400
+        user_playlist_create(@user_id, music_id)
+      else
+        user_playlist_create(@user_id, music_id)
+      end
     end
   end
 
   # post 로 만들어 놓은 상태
-  def destroyAll
+  def destroy
     @user_id = params[:user_id]
-    @musics_id = params[:musics_id] 
+    @musics_id = params[:musics_id]
 
     @musics_id.each do |music_id|
       @music = UserPlaylist.find_by(user_id: @user_id, music_id: music_id)
@@ -74,4 +62,13 @@ class UserPlaylistsController < ApplicationController
       end
     end
   end
+
+  def user_playlist_create(user_id, music_id)
+    @user_playlist = UserPlaylist.new(
+          user_id: user_id,
+          music_id: music_id
+    )
+    @user_playlist.save
+  end
+
 end
