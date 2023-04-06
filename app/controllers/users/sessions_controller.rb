@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class Users::SessionsController < Devise::SessionsController
-  # skip_before_action :verify_authenticity_token
-  protect_from_forgery prepend: true
+  protect_from_forgery
   wrap_parameters :user, format: [:url_encoded_form, :multipart_form, :json]
   respond_to :json
 
