@@ -19,8 +19,16 @@ class GroupsController < ApplicationController
     @users_id = params[:users_id]
     @group_id = params[:group_id]
 
+    
     @users_id.each do | user_id |
-      user_group_create(user_id, @group_id)
+      @person = UserGroup.find_by(user_id: user_id, group_id: @group_id)
+
+      if @person
+        # 이미 db 에 생성된 정보가 있으면 논리 추가만 해주면 됨
+        @person.update_attribute(:usable, 1) 
+      else
+        user_group_create(user_id, @group_id)
+      end
     end
   end
 
@@ -50,7 +58,7 @@ class GroupsController < ApplicationController
 
   end
 
-  # 그룹 복구
+  # 그룹 복구 - to do: 플레이리스트가 있다면 플리까지 복구
   def recover_group
     @group_id = params[:group_id]
     @group = Group.where("id = ?", @group_id)
