@@ -15,8 +15,9 @@ User.all.map(&:destroy)
 
 1.upto(user_cnt) do |i|
   User.create(
-    user_name: Faker::Name.unique.name,
-    password: "thisisthepasswordof#{i}"
+    password: "thisisthepasswordof#{i}",
+    email: "test#{i}@example.com",
+    usable: 1
   )
 end
 

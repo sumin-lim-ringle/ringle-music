@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_05_224205) do
   create_table "group_playlists", force: :cascade do |t|
     t.integer "user_id"
     t.integer "music_id"
     t.integer "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "usable"
     t.index ["group_id"], name: "index_group_playlists_on_group_id"
     t.index ["music_id"], name: "index_group_playlists_on_music_id"
     t.index ["user_id"], name: "index_group_playlists_on_user_id"
@@ -26,6 +27,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
     t.string "group_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "usable"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -33,6 +35,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
     t.integer "music_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "likable"
     t.index ["music_id"], name: "index_likes_on_music_id"
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
@@ -51,6 +54,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
     t.integer "group_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "usable"
     t.index ["group_id"], name: "index_user_groups_on_group_id"
     t.index ["user_id"], name: "index_user_groups_on_user_id"
   end
@@ -60,6 +64,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
     t.integer "music_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "usable"
     t.index ["music_id"], name: "index_user_playlists_on_music_id"
     t.index ["user_id"], name: "index_user_playlists_on_user_id"
   end
@@ -69,6 +74,16 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_29_165827) do
     t.string "password"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "jti"
+    t.integer "usable"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["jti"], name: "index_users_on_jti", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "group_playlists", "groups"
