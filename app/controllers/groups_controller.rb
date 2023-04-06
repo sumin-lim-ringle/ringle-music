@@ -1,21 +1,74 @@
 class GroupsController < ApplicationController
-  skip_before_action :verify_authenticity_token # 추후 로그인 작업 시 변경 예정
+  skip_before_action :verify_authenticity_token
+  # group 생성
   def create
-    group = Group.new
-    group.group_name = params[:group_name]
+    group = Group.new(group_name: params[:group_name], usable: 1)
     group.save
 
     # group 안에 속해 있는 user 들의 정보 - UserGroup 모델에 저장
     @users_id = params[:users_id]
     @latest_group = Group.order("id DESC").limit(1)
 
-    # puts @latest_group[0]["id"]
-
     @users_id.each do |user_id|
-      ug = UserGroup.new
-      ug.user_id = user_id
-      ug.group_id = @latest_group[0]["id"]
-      ug.save
+      user_group_create(user_id, @latest_group[0]["id"])
     end
+  end
+
+  # 생성된 그룹에 사람 추가
+  def add_member
+    @users_id = params[:users_id]
+    @group_id = params[:group_id]
+
+    @users_id.each do | user_id |
+      user_group_create(user_id, @group_id)
+    end
+  end
+
+  # 그룹에 있는 사람 삭제 
+  def destory_member
+    @users_id = params[:users_id]
+    @group_id = params[:group_id]
+
+
+    @users_id.each do | user_id |
+      @user_group = UserGroup.where("user_id = ? and group_id = ?", user_id, @group_id)
+                  .first
+                  .update_attribute(:usable, 0)
+    end
+  end
+
+  # group 삭제
+  def destroy_group
+    @group_id = params[:group_id]
+    @group = Group.where("id = ?", @group_id)
+    @group.first.update_attribute(:usable, 0)
+
+    @user_group = UserGroup.where("group_id = ?", @group_id)
+    @user_group.each do | user |
+      user.update_attribute(:usable, 0)
+    end
+
+  end
+
+  # 그룹 복구
+  def recover_group
+    @group_id = params[:group_id]
+    @group = Group.where("id = ?", @group_id)
+    @group.first.update_attribute(:usable, 1)
+
+    @user_group = UserGroup.where("group_id = ?", @group_id)
+    @user_group.each do | user |
+      user.update_attribute(:usable, 1)
+    end
+  end
+
+  # user_group 추가 메소드
+  def user_group_create(user_id, group_id)
+    @ug = UserGroup.new(
+          user_id: user_id,
+          group_id: group_id,
+          usable: 1
+    )
+    @ug.save
   end
 end
