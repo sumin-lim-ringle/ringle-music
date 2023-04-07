@@ -18,7 +18,8 @@ class Music < ApplicationRecord
   has_many :playlists, through: :music_playlists
   has_many :likes, dependent: :destroy
 
-  def self.search_word(query, sortby)
+  # search & sort 
+  def self.search_word_sort(query, sortby)
     @sort_param = {"#{sortby}" => { order: 'desc' }}
 
     self.search({
@@ -39,5 +40,5 @@ class Music < ApplicationRecord
         @sort_param
       ]
     })
-  end 
+  end
 end
