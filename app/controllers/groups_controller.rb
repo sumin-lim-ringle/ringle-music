@@ -12,6 +12,15 @@ class GroupsController < ApplicationController
     @users_id.each do |user_id|
       user_group_create(user_id, @latest_group[0]["id"])
     end
+
+    # 생성한 그룹 info 
+    group_info = Group.order("created_at desc").limit(1)
+
+    render json: {
+      status: "SUCCESS",
+      message: "group created",
+      group_info: group_info,
+    }
   end
 
   # 특정 그룹의 그룹원 확인
