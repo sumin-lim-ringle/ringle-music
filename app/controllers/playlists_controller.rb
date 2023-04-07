@@ -35,7 +35,7 @@ class PlaylistsController < ApplicationController
             INNER JOIN users ON music_playlists.user_id = users.id 
         ")
         .select("playlists.ownable_type, musics.music_name, users.email")
-        .where("playlist_id = ?", params[:playlist_id])
+        .where("playlist_id = ? AND playlists.usable = ?", params[:playlist_id], 1)
 
 
         render json: {
