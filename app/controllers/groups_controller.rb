@@ -14,6 +14,22 @@ class GroupsController < ApplicationController
     end
   end
 
+  # 특정 그룹의 그룹원 확인
+  def check_member
+    @group_member = UserGroup
+                    .joins("INNER JOIN users ON users.id = user_groups.user_id")
+                    .select("users.email, users.id")
+                    .where("group_id = ? AND user_groups.usable = ?", params[:group_id], 1)
+    @group_name = Group.find(params[:group_id]).group_name
+
+    render json: {
+      status: "SUCCESS",
+      message: "group info",
+      group_name: @group_name,
+      group_member: @group_member
+    }, status: 200
+  end
+
   # 생성된 그룹에 사람 추가
   def add_member
     @users_id = params[:users_id]
@@ -48,9 +64,18 @@ class GroupsController < ApplicationController
   # group 삭제
   def destroy_group
     @group_id = params[:group_id]
-    @group = Group.where("id = ?", @group_id)
-    @group.first.update_attribute(:usable, 0)
+    @group = Group.find(@group_id) # 그룹 찾기
 
+    # 플리 block
+    @group_playlist = Playlist.find_by(ownable_id: @group_id)
+    if @group_playlist
+      @group_playlist.update_attribute(:usable, 0)
+    end
+
+    # group block
+    @group.update_attribute(:usable, 0)
+
+    # user group block
     @user_group = UserGroup.where("group_id = ?", @group_id)
     @user_group.each do | user |
       user.update_attribute(:usable, 0)
@@ -58,16 +83,26 @@ class GroupsController < ApplicationController
 
   end
 
-  # 그룹 복구 - to do: 플레이리스트가 있다면 플리까지 복구
+  # 그룹 복구 
   def recover_group
     @group_id = params[:group_id]
-    @group = Group.where("id = ?", @group_id)
-    @group.first.update_attribute(:usable, 1)
+    @group = Group.find(@group_id)
 
+    # 플리 복구
+    @group_playlist = Playlist.find_by(ownable: @group)
+    if @group_playlist
+      @group_playlist.update_attribute(:usable, 1)
+    end
+
+    # 그룹 복구
+    @group.update_attribute(:usable, 1)
+
+    # 유저 그룹 복구
     @user_group = UserGroup.where("group_id = ?", @group_id)
     @user_group.each do | user |
       user.update_attribute(:usable, 1)
     end
+
   end
 
   # user_group 추가 메소드
