@@ -29,7 +29,14 @@ class GroupsController < ApplicationController
                     .joins("INNER JOIN users ON users.id = user_groups.user_id")
                     .select("users.email, users.id")
                     .where("group_id = ? AND user_groups.usable = ?", params[:group_id], 1)
-    @group_name = Group.find(params[:group_id]).group_name
+    
+    @group_info = Group.find(params[:group_id])
+
+    if @group_info.usable == 0
+      @group_name = "group is removed."
+    else
+      @group_name = @group_info.group_name
+    end
 
     render json: {
       status: "SUCCESS",
